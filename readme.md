@@ -1,0 +1,3 @@
+# SCHiCRank
+
+A script to 
