@@ -1,26 +1,4 @@
 import os
-# Dependencies:
-#     - pandas
-#     - networkx
-#     - kneed
-#     - matplotlib
-#     - collections (defaultdict)
-#     - pickle
-#     - os
-# This script implements an iterative cell filtering algorithm based on PageRank centrality in k-nearest neighbor (kNN) graphs constructed from pairwise cell similarity data across chromosomes. The main workflow is as follows:
-# 1. Loads cell phase metadata from a pickle file.
-# 2. Builds or loads a full neighbor map from CSV files in a specified input directory, where each file contains pairwise relationships (e.g., between genomic loci or cells) and their associated frequencies.
-# 3. Iteratively constructs directed kNN graphs for each chromosome using only currently active cells, computes PageRank scores for each cell, and aggregates these scores across chromosomes.
-# 4. At each iteration, identifies an "elbow point" in the sorted aggregate PageRank scores using the KneeLocator algorithm, and deactivates cells with the lowest scores (left of the elbow).
-# 5. Repeats the process until no further cells can be removed or a minimum number of active cells is reached.
-# 6. Optionally, plots PageRank distributions and elbow points for up to three iterations at a time.
-# 7. Saves a CSV file listing all cells, the iteration in which they were deemed central, their final PageRank score, and their phase.
-# Functions:
-#     - get_all_cells(input_dir): Returns all unique cell IDs from the input directory.
-#     - build_full_neighbor_map(input_dir): Builds or loads a neighbor map for all files in the input directory, mapping each cell to its sorted neighbors by frequency.
-#     - run_pagerank_filter(INPUT_DIR, label="test", plots=True): Main function that performs iterative PageRank-based filtering and outputs results.
-# Usage:
-#     Run the script directly to execute the PageRank filtering on the specified input directory.
 import pandas as pd
 import networkx as nx
 from kneed import KneeLocator
@@ -30,8 +8,8 @@ import pickle
 
 
 # Configuration
-K = 5
-MIN_ACTIVE_CELLS = 10
+K = 5 # Number of top neighbors to consider for each cell
+MIN_ACTIVE_CELLS = 10 # Minimum number of active cells to keep in the analysis
 
 # Load cell phase metadata (global)
 metaFn = "cellAndPhaseInfo.pkl"
