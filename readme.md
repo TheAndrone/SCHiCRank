@@ -39,5 +39,66 @@
 
 ## Usage
 
-Run the script directly to execute the PageRank filtering on the specified input directory.
+Run the script [`runSCHiCRank.py`](./runSCHiCRank.py) directly to execute the SCHiCRank on an example directory.
 
+
+
+
+# Pipeline to process original data in scool format for clique-based topological analysis
+## Function: `process_cells` in [`processOriginalCoolDataset.py`](./processOriginalCoolDataset.py)
+
+The `process_cells` function processes a `.scool` file containing scHi-C data for multiple cells, extracting and saving interactions for specified chromosomes into a format suitable for downstream topological analysis.
+
+### Download Example Data
+
+Download the `nagano_10kb_cell_types.scool` file from [Zenodo](https://zenodo.org/records/4308298) and save it to the `sourceData` directory.
+
+# Reference
+This file is from "Robust and efficient single-cell Hi-C clustering with approximate k-nearest neighbor graphs".
+
+**Creators:** Joachim Wolff
+
+**Description:**  
+Date used in 'Robust and efficient single-cell Hi-C clustering with approximate k-nearest neighbor graphs'.
+
+**Original data source:**  
+- Nagano 2017: GEO94489  
+
+
+### Output Format
+
+```python
+{
+    "chr": <chromosome name>,
+    "type": <identifier, e.g., "base10k">,
+    "resolution": <resolution in base pairs, e.g., 10000>,
+    "cell_links": {<cell_index>: [(A, B), ...], ...},
+    "link_cells": {(A, B): [<cell_index>, ...], ...},
+}
+```
+
+### Parameters
+
+- **fn** (`str`, optional):  
+  Path to the `.scool` file. Default: `"sourceData/nagano_10kb_cell_types.scool"`.
+
+- **postfix** (`str`, optional):  
+  Postfix for output files. Default: `"base10k"`.
+
+- **chromosomes** (`list of str`, optional):  
+  List of chromosomes to process. Default: `["chr1", ..., "chrX"]`.
+
+- **cellCount** (`int`, optional):  
+  Number of cells to process. If `None`, all cells are processed. Default: `None`.
+
+- **k** (`int`, optional):  
+  Coarsening factor for reducing resolution. Default: `1` (no reduction).
+    
+---
+
+### Additional Dependencies
+
+- `h5py`
+- `cooler`
+
+Helper functions used in `process_cells` are implemented in the `MulticoolProcessor` and `CoolProcessor` classes.
