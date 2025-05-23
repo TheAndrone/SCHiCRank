@@ -6,3 +6,4 @@ tmp.cool
 tmpcells*.pkl
 sourceData/*
 openPickle.py
+*.csv
