@@ -51,7 +51,7 @@ The `process_cells` function processes a `.scool` file containing scHi-C data fo
 
 ### Download Example Data
 
-Download the `nagano_10kb_cell_types.scool` file from [Zenodo](https://zenodo.org/records/4308298) and save it to the `sourceData` directory.
+Download the `nagano_10kb_cell_types.scool` and `nagano_assoziated_cell_types.txt` files from [Zenodo](https://zenodo.org/records/4308298) and save them to the `sourceData` directory.
 
 # Reference
 This file is from "Robust and efficient single-cell Hi-C clustering with approximate k-nearest neighbor graphs".
@@ -72,6 +72,9 @@ Date used in 'Robust and efficient single-cell Hi-C clustering with approximate 
     "chr": <chromosome name>,
     "type": <identifier, e.g., "base10k">,
     "resolution": <resolution in base pairs, e.g., 10000>,
+    "index_to_name": {<cell_index>: <cell_name>},
+    "index_to_type": {<cell_index>: <cell_type_in_mitotic_cycle>},
+    "cell_IDs": [<cell_index>],
     "cell_links": {<cell_index>: [(A, B), ...], ...},
     "link_cells": {(A, B): [<cell_index>, ...], ...},
 }
@@ -82,6 +85,9 @@ Date used in 'Robust and efficient single-cell Hi-C clustering with approximate 
 - **fn** (`str`, optional):  
   Path to the `.scool` file. Default: `"sourceData/nagano_10kb_cell_types.scool"`.
 
+- **fnResolution** (`int`, optional):  
+  Resolution of the original `.scool` file. Default: `10000`.
+  
 - **postfix** (`str`, optional):  
   Postfix for output files. Default: `"base10k"`.
 
@@ -102,3 +108,43 @@ Date used in 'Robust and efficient single-cell Hi-C clustering with approximate 
 - `cooler`
 
 Helper functions used in `process_cells` are implemented in the `MulticoolProcessor` and `CoolProcessor` classes.
+
+
+
+# Script: [`createCliqueDatafiles.py`](./createCliqueDatafiles.py)
+
+
+This script processes the files created by `process_cells` and generates new `.pkl` files containing clique information for each cell. 
+
+- **cell_cliques**: For each cell and clique size (K3–K8), a set of cliques (as sorted tuples of node indices) found in that cell.
+- **clique_cells**: For each clique size (K3–K8), a mapping from each clique (tuple) to the set of cells where it appears.
+- Other metadata fields:  
+  - `chr`: Chromosome name  
+  - `resolution`: Bin resolution  
+  - `type`: Data type (with `_cliques` appended)  
+  - `index_to_name`: Mapping from node index to name  
+  - `index_to_type`: Mapping from node index to type  
+  - `cell_IDs`: List of cell IDs
+
+**Output `.pkl` structure:**
+```python
+{
+    "chr": ...,
+    "resolution": ...,
+    "type": ...,
+    "index_to_name": ...,
+    "index_to_type": ...,
+    "cell_IDs": [...],
+    "cell_cliques": {
+        "K3": {cellID: set(cliques), ...},
+        ...,
+        "K8": {cellID: set(cliques), ...}
+    },
+    "clique_cells": {
+        "K3": {clique: set(cellIDs), ...},
+        ...,
+        "K8": {clique: set(cellIDs), ...}
+    }
+}
+```
+This script adds cliques for each cell and the reverse mapping of cells for each clique. Can be used for further analysis.

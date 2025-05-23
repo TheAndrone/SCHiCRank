@@ -1,1 +1,8 @@
+*.pyc
 */*.pkl
+*base*.pkl
+*.json
+tmp.cool
+tmpcells*.pkl
+sourceData/*
+openPickle.py
