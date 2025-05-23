@@ -7,3 +7,4 @@ tmpcells*.pkl
 sourceData/*
 openPickle.py
 *.csv
+sanityCheck.py

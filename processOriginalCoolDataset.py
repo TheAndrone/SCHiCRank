@@ -153,7 +153,7 @@ def process_cells(cellCount = None, k=1,
             "index_to_type": indexToType,
             "cell_IDs": sorted(cellNamesToIndex.values()),
             "cell_links": {},
-            "link_cells": {(int(key[0]), int(key[1])): listOfCellsForCurLink for key, listOfCellsForCurLink in dictOfLinkCells.items()},
+            "link_cells": {(int(key[0]), int(key[1])): sorted(set(listOfCellsForCurLink)) for key, listOfCellsForCurLink in dictOfLinkCells.items()},
         }
         #Calculating reverse mapping for cell_links
         for key, listOfCellsForCurLink in dictOfLinkCells.items():
@@ -175,7 +175,7 @@ def process_cells(cellCount = None, k=1,
 if __name__ == "__main__":
     process_cells(cellCount=None, k=10, 
                   chromosomes=["chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chrX"],
-                #   chromosomes= ["chr19", "chr18"],
+                #   chromosomes= ["chr18"],
                   fn="sourceData/nagano_10kb_cell_types.scool", 
                   postfix="base100k")
 
