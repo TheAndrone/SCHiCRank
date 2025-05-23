@@ -4,6 +4,7 @@ import logging
 import os
 import json
 import pickle
+import csv
 
 
 def combineDicts(d1, d2):
@@ -28,10 +29,12 @@ def combineDicts(d1, d2):
 def process_cells(cellCount = None, k=1, 
                   chromosomes = ["chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chrX"], 
                   fn="sourceData/nagano_10kb_cell_types.scool", 
+                  fnResolution = 10000,
                   postfix="base10k"):
     
-    resolution = 10000
-    cellNamesToIndexFn = f"cellNameIndex_{postfix}"
+    cellTypeFile = "sourceData/nagano_assoziated_cell_types.txt"
+    resolution = fnResolution*k
+    cellNamesToIndexFn = f"cellNameIndex_{postfix}.json"
     resFn = f"cellsPerInteraction_{postfix}"
     tmpresFn = f"tmpcellsPerInteraction_{postfix}"
 
@@ -55,8 +58,36 @@ def process_cells(cellCount = None, k=1,
         with open(cellNamesToIndexFn, 'w') as f:
             json.dump(cellNamesToIndex, f)
 
+    #Create cellIndexToName mapping
+    indexToName = {v: k for k, v in cellNamesToIndex.items()}
+    
     if cellCount is not None:
         cellNames = cellNames[:cellCount]
+
+    # Load cell type mapping from file
+    cellTypeMapping = {}
+    
+    if os.path.exists(cellTypeFile):
+        with open(cellTypeFile, "r", newline='') as f:
+            reader = csv.reader(f, delimiter='\t')
+            for row in reader:
+                if len(row) == 2:
+                    cellName, cellType = row
+                    cellName = cellName.lstrip("/cells/")
+                    cellTypeMapping[cellName] = cellType
+    else:
+        logging.warning(f"Cell type file {cellTypeFile} not found. For example dataset download nagano_assoziated_cell_types.txt from https://zenodo.org/records/4308298")
+
+    # Create index to type mapping
+    indexToType = {}
+    for cellName, cellID in cellNamesToIndex.items():
+        if cellName in cellTypeMapping:
+            indexToType[cellID] = cellTypeMapping[cellName]
+        else:
+            indexToType[cellID] = "unknown"
+    
+    iii=0
+
 
     alreadyProcessedCells = set()
     cellsPerInteractionFull = defaultdict(dict)
@@ -118,6 +149,9 @@ def process_cells(cellCount = None, k=1,
             "chr": cch,
             "type": postfix,
             "resolution": resolution,
+            "index_to_name": indexToName,
+            "index_to_type": indexToType,
+            "cell_IDs": sorted(cellNamesToIndex.values()),
             "cell_links": {},
             "link_cells": {(int(key[0]), int(key[1])): listOfCellsForCurLink for key, listOfCellsForCurLink in dictOfLinkCells.items()},
         }
@@ -139,8 +173,9 @@ def process_cells(cellCount = None, k=1,
 
 
 if __name__ == "__main__":
-    process_cells(cellCount=None, k=1, 
+    process_cells(cellCount=None, k=10, 
                   chromosomes=["chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chrX"],
+                #   chromosomes= ["chr19", "chr18"],
                   fn="sourceData/nagano_10kb_cell_types.scool", 
-                  postfix="base10k")
+                  postfix="base100k")
 
